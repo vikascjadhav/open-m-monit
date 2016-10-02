@@ -73,7 +73,8 @@ var findInform = function (hostname, data) {
         username: data[i].username,
         password: data[i].password,
         hostname: data[i].hostname,
-        alias: data[i].alias
+        alias: data[i].alias,
+	monitHttpPort:data[i].monitHttpPort
       };
     }
   }
@@ -117,11 +118,12 @@ var getProtocol = function (config) {
 };
 
 var buildBaseUrl = function (config) {
-  return getProtocol(config) + config.username + ':' + config.password + '@' + config.hostname + "/_status?format=xml";
+  return getProtocol(config) + config.username + ':' + config.password + '@' + config.hostname + ":"+config.monitHttpPort+"/_status?format=xml";
 };
 
 var refreshServer = function () {
   var url = buildBaseUrl(serverInformation);
+	console.log('url: %s', url);
   request({url: url, timeout: 5000}, function (error, response, body) {
     if (!error && response.statusCode === 200) {
       body = xml.parser(body).monit;
@@ -204,9 +206,14 @@ var info = io.of('/info').on('connection', function (socket) {
   }
   socket.on('sendData', function (data) {
     var information = findInform(data.href.split('/')[0], smallDnsList);
-
+    var hostProgStr = data.href.split('/')[0] + ":" + information.monitHttpPort +"/"+data.href.split('/')[1];
+//    var url = getProtocol(information) + information.username + ":" + information.password + "@" + data.href;
+    var url = getProtocol(information) + information.username + ":" + information.password + "@" + hostProgStr;
+    console.info("URL SEND %s",url);
+    console.info("TEST %",data.href);	
     request.post({
-      url: getProtocol(information) + information.username + ":" + information.password + "@" + data.href,
+      //url: getProtocol(information) + information.username + ":" + information.password + "@" + data.href,
+      url: url,
       headers: {'content-type': 'application/x-www-form-urlencoded'},
       body: 'action=' + data.action
     }, function (error, response, body) {
