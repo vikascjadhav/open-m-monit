@@ -79,6 +79,11 @@ $(document).ready(function () {
                 alias = data.alias || dns,
                 id = data.id,
                 processes = data.body.monit.service,
+                userName = data.body.monit.server.credentials.username,
+                password = data.body.monit.server.credentials.password,
+                port = data.body.monit.server.httpd.port,
+                protocol = data.body.monit.server.httpd.ssl == 1 ? "https" : "http",    
+		address = data.body.monit.server.httpd.address,
                 length = processes.length,
 				row,
                 count = 0;
@@ -98,10 +103,15 @@ $(document).ready(function () {
                 $('<td/>').append($('<a/>', {"class": "inform",
                                              "href": dns,
                                              "text": alias})).appendTo(row);
+		var baseUrl = protocol.concat(":","//",userName,":",password,"@",address,":",port,"/");
                 for (var i = 0; i < length; i += 1) {
 		    /* disk */
+		   
                     if (processes[i].type == 0) {
-                        $('<td/>', {text: processes[i].name, "class": "process-name"}).appendTo(row);
+                      //  $('<td/>', {text: processes[i].name, "class": "process-name", "href": dns}).appendTo(row);
+//                        $('<td/>', {text: processes[i].name, "class": "process-name", "href": dns}).appendTo(row);
+	                $('<td/>').append($('<a/>', {"class": "process-name","href": baseUrl.concat(processes[i].name),"text": processes[i].name})).appendTo(row);
+
                         if (processes[i].collected_sec !== undefined) {
                             $('<td/>', {text: processes[i].pid}).appendTo(row);
                             $('<td/>', {text: "Accessible", "class": 'status'}).appendTo(row);
@@ -129,7 +139,10 @@ $(document).ready(function () {
                         row.after($('<tr/>'));
                         row = row.next();
 		    } else if (processes[i].type == 3) {
-                        $('<td/>', {text: processes[i].name, "class": "process-name"}).appendTo(row);
+                       // $('<td/>', {text: processes[i].name, "class": "process-name"}).appendTo(row);
+//	                $('<td/>').append($('<a/>', {"class": "process-name","href": "#","text": processes[i].name})).appendTo(row);
+	                $('<td/>').append($('<a/>', {"class": "process-name","href": baseUrl.concat(processes[i].name),"text": processes[i].name})).appendTo(row);
+
                         if (processes[i].uptime !== undefined) {
                             $('<td/>', {text: processes[i].pid}).appendTo(row);
                             $('<td/>', {text: 'running', "class": 'status'}).appendTo(row);
@@ -158,7 +171,10 @@ $(document).ready(function () {
                         row = row.next();
 		    } else if (processes[i].type == 8) {
 			/* network interface */
-                        $('<td/>', {text: processes[i].name, "class": "process-name"}).appendTo(row);
+                        //$('<td/>', {text: processes[i].name, "class": "process-name"}).appendTo(row);
+//	                $('<td/>').append($('<a/>', {"class": "process-name","href": "#","text": processes[i].name})).appendTo(row);
+	                $('<td/>').append($('<a/>', {"class": "process-name","href": baseUrl.concat(processes[i].name),"text": processes[i].name})).appendTo(row);
+
                         if (processes[i].state !== 1) {
                             $('<td/>', {text: processes[i].pid}).appendTo(row);
                             $('<td/>', {text: 'up', "class": 'status'}).appendTo(row);
@@ -284,6 +300,13 @@ $(document).ready(function () {
 		e.preventDefault();
 		window.location.href = '/inform?href=' + $(this).attr('href') + '&cluster=' + document.URL.split('/')[4];
 	});
+
+	/*
+	content.delegate('.process-name', 'click', function (e) {
+		e.preventDefault();
+		console.log(e)
+			window.location.href = '/inform?href=' + $(this).attr('href') + '&cluster=' + document.URL.split('/')[4];
+	});*/
     (function () {
         var links = $('.nav a'),
             name = location.pathname.split('/')[2];
