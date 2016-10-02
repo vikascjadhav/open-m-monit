@@ -8,6 +8,16 @@ var express = require('express')
   , path = require('path')
   , cache = require('./routes/cache');
 
+var winston = require('winston');
+var logger = new (winston.Logger)({
+    transports: [
+      new (winston.transports.Console)(),
+      new (winston.transports.File)({ filename: 'somefile.log' })
+    ]
+});
+
+logger.transports.console.level = 'debug';
+
 var app = express(),
   server = http.createServer(app),
   io = require('socket.io').listen(server),
@@ -84,11 +94,10 @@ var serverInfo = io.of('/server'),
   serverInformation;
 
 app.get('/', function (req, res) {
+  logger.debug("First root Request",dnsList);
   clearInterval(infoInterval);
   clearInterval(serverInformation);
   res.redirect('/cluster/' + cluster);
-
-  //res.render('index', {href: '', dnsList: Object.keys(dnsList)});
 });
 app.get('/cluster/:clusterName', function (req, res) {
   "use strict";
@@ -106,6 +115,7 @@ app.get('/inform', function (req, res) {
   cluster = req.query.cluster.replace(/%2F/, '/').replace(/%3A/, ':');
   smallDnsList = dnsList[cluster];
   serverInformation = findInform(href, smallDnsList);
+  logger.debug("Querying infor for cluser",cluster);
   res.render('index', {
     clusters: clusters,
     href: serverInformation.hostname,
@@ -146,6 +156,7 @@ var refreshServer = function () {
 };
 
 serverInfo.on('connection', function (socket) {
+  logger.debug("START - serverInfo.on('connection', function (socket)")
   clearInterval(infoInterval);
   clearInterval(serverInformation);
   var url = buildBaseUrl(serverInformation) + "/_status?format=xml";
@@ -169,10 +180,12 @@ serverInfo.on('connection', function (socket) {
     }
   });
   serverInterval = setInterval(refreshServer, 5000);
+  logger.debug("END - serverInfo.on('connection', function (socket)")
 });
 
 
 var info = io.of('/info').on('connection', function (socket) {
+  logger.debug("START - io.of('/info')")
   clearInterval(infoInterval);
   clearInterval(serverInformation);
   totalArray = cache.use(cluster);
@@ -203,8 +216,10 @@ var info = io.of('/info').on('connection', function (socket) {
         }
       });
     });
+    logger.debug("END - io.of('/info')")
   }
   socket.on('sendData', function (data) {
+    logger.debug("START -   socket.on('sendData', function (data)")
     var information = findInform(data.href.split('/')[0], smallDnsList);
     var hostProgStr = data.href.split('/')[0] + ":" + information.monitHttpPort +"/"+data.href.split('/')[1];
 //    var url = getProtocol(information) + information.username + ":" + information.password + "@" + data.href;
@@ -226,10 +241,12 @@ var info = io.of('/info').on('connection', function (socket) {
     });
   });
   infoInterval = setInterval(refresh, infoTime);
+  logger.debug("END -   socket.on('sendData', function (data)")
 });
 
 
 var refresh = function () {
+   logger.debug("START - var refresh = function ()")
   totalArray = cache.use(cluster);
   if (firstTimeUse[cluster] && totalArray) {
     info.emit('data', {data: totalArray});
@@ -258,14 +275,20 @@ var refresh = function () {
       });
     });
   }
+  logger.debug("END - var refresh = function ()")
 };
 
 server.listen(app.get('port'), function () {
+  logger.debug("START - server.listen(app.get('port'), function ()")
   console.log("Express server listening on port " + app.get('port'));
+
+  logger.info("Express server listening on port " + app.get('port'));
+  logger.debug("END - server.listen(app.get('port'), function ()")
 });
 
 process.on('uncaughtException', function (exception) {
   // handle or ignore error
   console.log(exception);
+  logger.error(exception);
 });
 
