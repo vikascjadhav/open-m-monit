@@ -51,6 +51,7 @@ if (connectionConf.type === 'tcp') {
 
 
 app.configure(function () {
+  logger.debug("START - app.configure");	
   app.set('port', port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -61,6 +62,7 @@ app.configure(function () {
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+  logger.debug("END - app.configure");
 });
 
 //app.configure('development', function(){
@@ -68,14 +70,17 @@ app.configure(function () {
 //});
 
 fs.watchFile('config.json', function (current) {
+  logger.debug("START - fs.watchFile");	
   "use strict";
   dnsList = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
   clusters = Object.keys(dnsList);
   cluster = clusters[0];
   smallDnsList = dnsList[cluster];
+  logger.debug("END - fs.watchFile");
 });
 
 var findInform = function (hostname, data) {
+  logger.debug("START - findInform");	
   var inform = {};
   for (var i = 0; i < data.length; i++) {
     if (data[i].hostname === hostname) {
@@ -88,18 +93,22 @@ var findInform = function (hostname, data) {
       };
     }
   }
+  logger.debug("END - findInform")
   return inform;
 };
 var serverInfo = io.of('/server'),
   serverInformation;
 
 app.get('/', function (req, res) {
+  logger.debug("START - app.get('/', function (req, res)");	
   logger.debug("First root Request",dnsList);
   clearInterval(infoInterval);
   clearInterval(serverInformation);
   res.redirect('/cluster/' + cluster);
+  logger.debug("END - app.get('/', function (req, res)");
 });
 app.get('/cluster/:clusterName', function (req, res) {
+  logger.debug("START - app.get('/', function (req, res)");
   "use strict";
   cluster = req.params.clusterName;
   firstTimeUse[cluster] = true;
@@ -108,8 +117,10 @@ app.get('/cluster/:clusterName', function (req, res) {
   smallDnsList = dnsList[cluster];
   infoTime = 5000 * (smallDnsList.length + 1);
   res.render('index', {clusters: clusters, href: ''});
+  logger.debug("END - app.get('/', function (req, res)");
 });
 app.get('/inform', function (req, res) {
+  logger.debug("START - app.get('/inform', function (req, res)");	
   clearInterval(infoInterval);
   var href = req.query.href.replace(/%2F/, '/').replace(/%3A/, ':');
   cluster = req.query.cluster.replace(/%2F/, '/').replace(/%3A/, ':');
@@ -121,17 +132,24 @@ app.get('/inform', function (req, res) {
     href: serverInformation.hostname,
     alias: serverInformation.alias
   });
+  logger.debug("END - app.get('/inform', function (req, res)");
 });
 
 var getProtocol = function (config) {
+  logger.debug("START - getProtocol");
+  logger.debug("END - getProtocol");
   return (config.protocol || 'http') + '://';
+  
 };
 
 var buildBaseUrl = function (config) {
+ logger.debug("START - buildBaseUrl");
+ logger.debug("END - buildBaseUrl");	
   return getProtocol(config) + config.username + ':' + config.password + '@' + config.hostname + ":"+config.monitHttpPort+"/_status?format=xml";
 };
 
 var refreshServer = function () {
+  logger.debug("START - refreshServer");	
   var url = buildBaseUrl(serverInformation);
 	console.log('url: %s', url);
   request({url: url, timeout: 5000}, function (error, response, body) {
@@ -153,6 +171,7 @@ var refreshServer = function () {
       });
     }
   });
+  logger.debug("END - refreshServer");
 };
 
 serverInfo.on('connection', function (socket) {
@@ -239,9 +258,9 @@ var info = io.of('/info').on('connection', function (socket) {
         info.emit('bad', {body: body});
       }
     });
+    logger.debug("END -   socket.on('sendData', function (data)")
   });
   infoInterval = setInterval(refresh, infoTime);
-  logger.debug("END -   socket.on('sendData', function (data)")
 });
 
 
@@ -291,4 +310,5 @@ process.on('uncaughtException', function (exception) {
   console.log(exception);
   logger.error(exception);
 });
+
 
