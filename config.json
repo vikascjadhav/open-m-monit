@@ -1,0 +1,25 @@
+{"clusterName1":
+        [
+            {
+            "hostname": "localhost",
+            "username": "admin",
+            "password": "monit",
+            "protocol": "http",
+            "monitHttpPort": "2812",
+            "alias"   : "vikas_host"
+            }
+        ],
+
+"clusterName2":
+        [
+            {
+            "hostname": "localhost",
+            "username": "admin",
+            "password": "monit",
+            "protocol": "http",
+            "monitHttpPort": "2812",
+            "alias"   : "vikas_host"
+            }
+        ]
+}
+
