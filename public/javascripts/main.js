@@ -148,7 +148,7 @@ $(document).ready(function () {
                             $('<td/>', {text: 'running', "class": 'status'}).appendTo(row);
                             $('<td/>', {text: getUptime(parseInt(processes[i].uptime, 10))}).appendTo(row);
                             $('<td/>', {text: processes[i].cpu.percenttotal + '%'}).appendTo(row);
-                            $('<td/>', {text: processes[i].memory.percenttotal + '% [' + processes[i].memory.kilobytetotal + 'kb]'}).appendTo(row);
+                            $('<td/>', {text: processes[i].memory.percenttotal + '% [' + (processes[i].memory.kilobytetotal)/1024 + ' MB]'}).appendTo(row);
                             $(buildActionMenu(dns + '/' + processes[i].name)).appendTo(row);
                         } else {
                             row.addClass('error');
