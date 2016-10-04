@@ -18,8 +18,9 @@ var logger = new (winston.Logger)({
 
 logger.transports.console.level = 'debug';
 
+var auth = require('basic-auth');
 var app = express(),
-  server = http.createServer(app),
+  server = http.createServer(app),  
   io = require('socket.io').listen(server),
   request = require('request'),
   fs = require('fs'),
@@ -51,7 +52,12 @@ if (connectionConf.type === 'tcp') {
 
 
 app.configure(function () {
-  logger.debug("START - app.configure");	
+  logger.debug("START - app.configure");
+
+  app.use(express.basicAuth(function(user, pass) {
+   return user === 'tt' && pass === 'tt';
+  }));
+	
   app.set('port', port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
