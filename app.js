@@ -55,7 +55,7 @@ app.configure(function () {
   logger.debug("START - app.configure");
 
   app.use(express.basicAuth(function(user, pass) {
-   return user === 'tt' && pass === 'tt';
+   return user === 'monit' && pass === 'monit';
   }));
 	
   app.set('port', port);
