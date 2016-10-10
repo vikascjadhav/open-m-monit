@@ -14,7 +14,13 @@ $(document).ready(function () {
         } else {
             return false;
         }
-        },
+        },isNull = function(value) {
+			if(value == undefined || value == null) {
+				return true;
+			} else {
+				return false;			
+			}
+	},
         getUptime = function (seconds) {
 			var kof = Math.floor(seconds/86400),
 				div = seconds - kof*86400,
@@ -79,13 +85,13 @@ $(document).ready(function () {
                 alias = data.alias || dns,
                 id = data.id,
                 processes = data.body.monit.service,
-                userName = data.body.monit.server.credentials.username,
-                password = data.body.monit.server.credentials.password,
-                port = data.body.monit.server.httpd.port,
-                protocol = data.body.monit.server.httpd.ssl == 1 ? "https" : "http",    
-		address = data.body.monit.server.httpd.address,
+		userName = isNull(data.body.monit.server) ? null :data.body.monit.server.credentials.username, 				
+        	password = isNull(data.body.monit.server) ? null : data.body.monit.server.credentials.password,
+        	port =     isNull(data.body.monit.server) ? null  :data.body.monit.server.httpd.port,
+                protocol = isNull(data.body.monit.server) ? null : (data.body.monit.server.httpd.ssl == 1 ? "https" : "http"),    
+		address = isNull(data.body.monit.server) ? null  :(data.body.monit.server.httpd.address),
                 length = processes.length,
-				row,
+		row,
                 count = 0;
 			row = table.find('#' + id);
             if (data.message !== undefined) {
