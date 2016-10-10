@@ -14,14 +14,24 @@ html
       - } else {
       script(src='/javascripts/serverInform.js')
       - }
-      div.navbar
-        div.navbar-inner
-          ul.nav
-            each cluster in clusters
+
+      div#start
+        div(style="position: relative; overflow: hidden;")
+          div(style="position: relative; width: 30%; float: left;")
+            img(src="/images/1.png")
+          div(style="position: relative; width: 70%; float: left;")
+            h3 Open Monit
+      div(id="optional",style="margin:10px 10px 0px 0px")    
+      div#navBarContainer    
+        div.navbar
+          div.navbar-inner
+            ul.nav
+              each cluster in clusters
+                li
+                  a(href="/cluster/" + cluster)=cluster
+              -if (href !== '') {
               li
-                a(href="/cluster/" + cluster)=cluster
-            -if (href !== '') {
-            li
-              a &gt; #{href}
-            - }
-    block content
+                a &gt; #{href}
+              - }
+      div#contentDiv
+       block content
