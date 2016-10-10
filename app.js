@@ -12,7 +12,7 @@ var winston = require('winston');
 var logger = new (winston.Logger)({
     transports: [
       new (winston.transports.Console)(),
-      new (winston.transports.File)({ filename: 'somefile.log' })
+      new (winston.transports.File)({ filename: 'open-monit.log' })
     ]
 });
 
@@ -27,11 +27,12 @@ var app = express(),
   xml = require('node-xml2json'),
   dnsList = JSON.parse(fs.readFileSync('config.json', 'utf-8')),
   connectionConf = JSON.parse(fs.readFileSync('port.json', 'utf-8')),
+  refreshInterval = connectionConf.refreshInterval,
   clusters = Object.keys(dnsList),
   cluster = clusters[0],
   smallDnsList = dnsList[cluster],
   serverInterval,
-  infoTime = 5000 * (smallDnsList.length + 1),
+  infoTime = refreshInterval * (smallDnsList.length + 1),
   infoInterval,
   port,
   totalArray = [],
@@ -51,12 +52,10 @@ if (connectionConf.type === 'tcp') {
 }
 
 
+
 app.configure(function () {
   logger.debug("START - app.configure");
 
-  app.use(express.basicAuth(function(user, pass) {
-   return user === 'monit' && pass === 'monit';
-  }));
 	
   app.set('port', port);
   app.set('views', __dirname + '/views');
@@ -68,6 +67,7 @@ app.configure(function () {
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+  logger.debug("refreshInterval",refreshInterval);
   logger.debug("END - app.configure");
 });
 
@@ -121,7 +121,7 @@ app.get('/cluster/:clusterName', function (req, res) {
   clearInterval(infoInterval);
   clearInterval(serverInformation);
   smallDnsList = dnsList[cluster];
-  infoTime = 5000 * (smallDnsList.length + 1);
+  infoTime = refreshInterval * (smallDnsList.length + 1);
   res.render('index', {clusters: clusters, href: ''});
   logger.debug("END - app.get('/', function (req, res)");
 });
@@ -204,7 +204,7 @@ serverInfo.on('connection', function (socket) {
       });
     }
   });
-  serverInterval = setInterval(refreshServer, 5000);
+  serverInterval = setInterval(refreshServer, refreshInterval);
   logger.debug("END - serverInfo.on('connection', function (socket)")
 });
 
