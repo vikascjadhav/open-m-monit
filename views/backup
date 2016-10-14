@@ -26,10 +26,8 @@ html
          h3 Open Monit
        
        div.row#menuRow
-        nav.navbar.navbar-default  
-          div.container-fluid
-            div.navbar-collapse.collapse
-             
+          nav.navbar.navbar-light
+            div.container-fluid
               div.navbar-inner
                 ul.nav
                   each cluster in clusters

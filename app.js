@@ -12,7 +12,7 @@ var winston = require('winston');
 var logger = new (winston.Logger)({
     transports: [
       new (winston.transports.Console)(),
-      new (winston.transports.File)({ filename: 'open-monit.log' })
+      new (winston.transports.File)({ filename: 'somefile.log' })
     ]
 });
 
@@ -27,12 +27,11 @@ var app = express(),
   xml = require('node-xml2json'),
   dnsList = JSON.parse(fs.readFileSync('config.json', 'utf-8')),
   connectionConf = JSON.parse(fs.readFileSync('port.json', 'utf-8')),
-  refreshInterval = connectionConf.refreshInterval,
   clusters = Object.keys(dnsList),
   cluster = clusters[0],
   smallDnsList = dnsList[cluster],
   serverInterval,
-  infoTime = refreshInterval * (smallDnsList.length + 1),
+  infoTime = 5000 * (smallDnsList.length + 1),
   infoInterval,
   port,
   totalArray = [],
@@ -52,11 +51,14 @@ if (connectionConf.type === 'tcp') {
 }
 
 
-
 app.configure(function () {
   logger.debug("START - app.configure");
 
-	
+/*
+  app.use(express.basicAuth(function(user, pass) {
+   return user === 'tt' && pass === 'tt';
+  }));
+*/	
   app.set('port', port);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -67,7 +69,6 @@ app.configure(function () {
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
-  logger.debug("refreshInterval",refreshInterval);
   logger.debug("END - app.configure");
 });
 
@@ -121,7 +122,7 @@ app.get('/cluster/:clusterName', function (req, res) {
   clearInterval(infoInterval);
   clearInterval(serverInformation);
   smallDnsList = dnsList[cluster];
-  infoTime = refreshInterval * (smallDnsList.length + 1);
+  infoTime = 5000 * (smallDnsList.length + 1);
   res.render('index', {clusters: clusters, href: ''});
   logger.debug("END - app.get('/', function (req, res)");
 });
@@ -204,7 +205,7 @@ serverInfo.on('connection', function (socket) {
       });
     }
   });
-  serverInterval = setInterval(refreshServer, refreshInterval);
+  serverInterval = setInterval(refreshServer, 5000);
   logger.debug("END - serverInfo.on('connection', function (socket)")
 });
 
@@ -249,8 +250,7 @@ var info = io.of('/info').on('connection', function (socket) {
     var hostProgStr = data.href.split('/')[0] + ":" + information.monitHttpPort +"/"+data.href.split('/')[1];
 //    var url = getProtocol(information) + information.username + ":" + information.password + "@" + data.href;
     var url = getProtocol(information) + information.username + ":" + information.password + "@" + hostProgStr;
-    console.info("URL SEND %s",url);
-    console.info("TEST %",data.href);	
+    logger.debug("data.action % data.url",data.action,url);	
     request.post({
       //url: getProtocol(information) + information.username + ":" + information.password + "@" + data.href,
       url: url,
