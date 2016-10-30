@@ -158,7 +158,7 @@ var buildBaseUrl = function (config) {
 var refreshServer = function () {
   logger.debug("START - refreshServer");	
   var url = buildBaseUrl(serverInformation);
-	console.log('url: %s', url);
+
   request({url: url, timeout: 5000}, function (error, response, body) {
     if (!error && response.statusCode === 200) {
       body = xml.parser(body).monit;
@@ -169,7 +169,7 @@ var refreshServer = function () {
         alias: serverInformation.alias
       });
     } else {
-      console.error(error.message);
+
       serverInfo.emit('serverInfo', {
         platform: {},
         server: {},
@@ -196,7 +196,7 @@ serverInfo.on('connection', function (socket) {
         alias: serverInformation.alias
       });
     } else {
-      console.error(error.message);
+
       serverInfo.emit('serverInfo', {
         platform: {},
         server: {},
@@ -227,7 +227,7 @@ var info = io.of('/info').on('connection', function (socket) {
         if (!error && response.statusCode === 200) {
           totalArray.push({body: xml.parser(body), id: index, dns: dns.hostname, alias: dns.alias});
         } else {
-          console.error(error.message);
+
           totalArray.push({
             body: {monit: {service: []}},
             id: index,
@@ -260,7 +260,7 @@ var info = io.of('/info').on('connection', function (socket) {
       if (!error && response.statusCode === 200) {
         info.emit('good', {body: body});
       } else {
-        console.error(error.message);
+
         info.emit('bad', {body: body});
       }
     });
@@ -285,7 +285,7 @@ var refresh = function () {
         if (!error && response.statusCode === 200) {
           totalArray.push({body: xml.parser(body), id: index, dns: dns.hostname, alias: dns.alias});
         } else {
-          console.error(error.message);
+
           totalArray.push({
             body: {monit: {service: []}},
             id: index,
@@ -305,7 +305,7 @@ var refresh = function () {
 
 server.listen(app.get('port'), function () {
   logger.debug("START - server.listen(app.get('port'), function ()")
-  console.log("Express server listening on port " + app.get('port'));
+
 
   logger.info("Express server listening on port " + app.get('port'));
   logger.debug("END - server.listen(app.get('port'), function ()")
@@ -313,7 +313,7 @@ server.listen(app.get('port'), function () {
 
 process.on('uncaughtException', function (exception) {
   // handle or ignore error
-  console.log(exception);
+
   logger.error(exception);
 });
 

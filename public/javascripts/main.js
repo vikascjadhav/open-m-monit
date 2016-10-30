@@ -247,7 +247,7 @@ $(document).ready(function () {
 
 
 	socketInfo.on('data', function (obj) {
-        console.log(obj);
+
 		var tbody,
             i,
             total = obj.data;
@@ -269,7 +269,7 @@ $(document).ready(function () {
 			total = [];
 	});
 	socketInfo.on('good', function (data) {
-		console.log(data);
+
 	});
 //	socketInfo.on('length', function (data) {
 //		len = data.length;
@@ -298,7 +298,7 @@ $(document).ready(function () {
 		var self = $(this),
 			href = self.data('href'),
 			action = self.data('action');
-		console.log(href, action);
+
         statusChange(self.closest('.basic-row'), self.closest('tr'), action);
 		socketInfo.emit('sendData', {href: href, action: action});
 	});

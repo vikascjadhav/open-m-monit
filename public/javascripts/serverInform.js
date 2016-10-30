@@ -29,8 +29,10 @@ $(document).ready(function () {
             for (prop in data) {
                 if (typeof data[prop] === 'object') {
                     for (prop2 in data[prop]) {
-                        htr.append('<th>' + prop2 + '</th>');
-                        btr.append('<td>' + data[prop][prop2] + '</td>');
+                    	if(prop2 != "password") {
+	                        htr.append('<th>' + prop2 + '</th>');
+	                        btr.append('<td>' + data[prop][prop2] + '</td>');
+                    	}
                     }
                 } else {
                     if (prop === 'uptime') {

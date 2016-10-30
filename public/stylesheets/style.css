@@ -5,7 +5,6 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
     width: 100%;
 }
-
 a {
   color: #00B7FF;
 }
@@ -25,5 +24,12 @@ a.active,
 a.active:hover {
     font-weight: bold;
     background: lightblue !important;
+}
+
+#start{
+    background-color: #e98300;
+}
+#optional {
+    background-color: #4a3c31;
 }
 
